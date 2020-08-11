@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS contacts
     score NUMERIC(7,3) NOT NULL,
     district_id INT NOT NULL,
     user_id BIGINT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
 
 ALTER TABLE contacts ADD CONSTRAINT fk_districts_user_id FOREIGN KEY (district_id) REFERENCES districts(id);

@@ -6,6 +6,8 @@ import java.sql.Timestamp;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
@@ -25,7 +27,7 @@ import lombok.Setter;
 @JsonAutoDetect(fieldVisibility = Visibility.ANY)
 public class User
 {
-    @Id
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @JsonProperty("id")
     @Getter @Setter @Column(name = "id") private Long id;
 
@@ -34,6 +36,9 @@ public class User
 
     @JsonProperty("password")
     @Getter @Setter @Column(name = "password") private String password;
+
+    @JsonProperty("is_logged_in")
+    @Getter @Setter @Column(name = "is_logged_in") private Boolean isLoggedIn;
 
     @JsonProperty("last_logged_in")
     @Getter @Setter @Column(name = "last_logged_in") private Timestamp lastLoggedIn;
@@ -45,6 +50,9 @@ public class User
     @JoinColumn(name = "district_id", referencedColumnName = "id")
     @JsonProperty("district")
     @Getter @Setter private District district;
+
+    @JsonProperty("refresh_token")
+    @Getter @Setter @Column(name = "refresh_token") private String refreshToken;
 
     @JsonProperty("created_at")
     @CreationTimestamp
