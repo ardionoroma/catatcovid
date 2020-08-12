@@ -3,7 +3,6 @@ package com.benica.catatcovid.dto;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
-import com.benica.catatcovid.dbo.District;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;
@@ -26,8 +25,11 @@ public class UserDTO
     @JsonProperty("alert_meter")
     @Getter @Setter private BigDecimal alertMeter;
 
-    @JsonProperty("district")
-    @Getter @Setter private District district;
+    @JsonProperty("district_name")
+    @Getter @Setter private String districtName;
+
+    @JsonProperty("district_alert_meter")
+    @Getter @Setter private BigDecimal districtAlertMeter;
 
     @JsonProperty("is_noted")
     @Getter @Setter private Boolean isNoted;

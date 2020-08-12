@@ -35,9 +35,11 @@ public class TokenController
         UserDTO dto = this.tokenProvider.verifyAndDecode(request.getToken());
 
         User user = this.userRepository.findById(dto.getId()).orElseThrow(() -> new InvalidAuthorizationTokenException());
+        dto.setIsLoggedIn(user.getIsLoggedIn());
         dto.setLastLoggedIn(user.getLastLoggedIn());
         dto.setAlertMeter(user.getAlertMeter());
-        dto.setDistrict(user.getDistrict());
+        dto.setDistrictName(user.getDistrict().getName());
+        dto.setDistrictAlertMeter(user.getDistrict().getAlertMeter());
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
