@@ -128,7 +128,7 @@ public class AuthController
     }
 
     @CrossOrigin(origins = "*")
-    @RequestMapping(value = "user_exit", method = RequestMethod.POST)
+    @RequestMapping(value = "logout", method = RequestMethod.POST)
     public ResponseEntity<?> logout(@Valid @RequestHeader("Authorization") String token) throws Exception
     {
         UserDTO dto = this.tokenProvider.verifyAndDecode(token);
