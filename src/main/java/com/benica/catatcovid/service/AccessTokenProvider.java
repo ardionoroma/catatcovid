@@ -1,7 +1,5 @@
 package com.benica.catatcovid.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
@@ -40,58 +38,38 @@ public class AccessTokenProvider
 
         @Override
         public RSAPublicKey getPublicKeyById(String keyId) {
-            String publicKeyPath = env.getProperty("app.jwt.rsa.public_key");
-			try (BufferedReader bufferedReader = 
-				new BufferedReader(new FileReader(publicKeyPath)))
-			{
-				StringBuilder stringBuilder = new StringBuilder();
-				String line;
-				while((line = bufferedReader.readLine()) != null)
-				{
-					stringBuilder.append(line);
-				}
-				
-                String keyContent = stringBuilder.toString()
-                    .replace("-----BEGIN PUBLIC KEY-----", "")
-                    .replace("-----END PUBLIC KEY-----", "");
-
-				X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(keyContent));
-				KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-				RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(spec);
-
-				return publicKey;
-			} catch (Exception ex) {
-				logger.error(ex.getClass().getName() + ":" + ex.getMessage());
-			}
+            try {
+                String publicKeyString = env.getProperty("app.jwt.rsa.public_key");
+                String keyContent = publicKeyString.replace("-----BEGIN PUBLIC KEY-----", "")
+                    .replace("-----END PUBLIC KEY-----", "")
+                    .replace("\n", "");
+                X509EncodedKeySpec spec = new X509EncodedKeySpec(Base64.getDecoder().decode(keyContent));
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                RSAPublicKey publicKey = (RSAPublicKey) keyFactory.generatePublic(spec);
+                return publicKey;
+            } catch (Exception e) {
+                logger.error(e.getClass().getName() + ":" + e.getMessage());
+            }
 
 			return null;
         }
 
         @Override
         public RSAPrivateKey getPrivateKey() {
-            String privateKeyPath = env.getProperty("app.jwt.rsa.private_key");
-			try (BufferedReader bufferedReader = 
-				new BufferedReader(new FileReader(privateKeyPath)))
-			{
-				StringBuilder stringBuilder = new StringBuilder();
-				String line;
-				while((line = bufferedReader.readLine()) != null)
-				{
-					stringBuilder.append(line);
-				}
-				
-                String keyContent = stringBuilder.toString()
-                    .replace("-----BEGIN PRIVATE KEY-----", "")
-                    .replace("-----END PRIVATE KEY-----", "");
-                    
-				PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyContent));
-				KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-				RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(spec);
+            try {
+                String privateKeyString = env.getProperty("app.jwt.rsa.private_key");
+                String keyContent = privateKeyString.replace("-----BEGIN PRIVATE KEY-----", "")
+                    .replace("-----END PRIVATE KEY-----", "")
+                    .replace("\n", "");
 
-				return privateKey;
-			} catch (Exception ex) {
-				logger.error(ex.getClass().getName() + ":" + ex.getMessage());
-			}
+                PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(keyContent));
+                KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+                RSAPrivateKey privateKey = (RSAPrivateKey) keyFactory.generatePrivate(spec);
+
+                return privateKey;
+            } catch (Exception e) {
+                logger.error(e.getClass().getName() + ":" + e.getMessage());
+            }
 
 			return null;
         }
