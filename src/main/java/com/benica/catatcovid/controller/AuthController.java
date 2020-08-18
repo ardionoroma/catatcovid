@@ -3,6 +3,7 @@ package com.benica.catatcovid.controller;
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Collections;
 
 import javax.validation.Valid;
 
@@ -16,6 +17,8 @@ import com.benica.catatcovid.dbo.ProvinceRepository;
 import com.benica.catatcovid.dbo.User;
 import com.benica.catatcovid.dbo.UserRepository;
 import com.benica.catatcovid.dto.LoginRequest;
+import com.benica.catatcovid.dto.RefreshTokenRequest;
+import com.benica.catatcovid.dto.RefreshTokenResponse;
 import com.benica.catatcovid.dto.RegisterRequest;
 import com.benica.catatcovid.dto.UserDTO;
 import com.benica.catatcovid.exception.InvalidAuthorizationTokenException;
@@ -95,6 +98,7 @@ public class AuthController
         this.userRepository.save(user);
 
         UserDTO dto = this.convertToDto(user);
+        dto.setContacts(0L);
         dto.setIsNoted(false);
         dto.setToken(this.tokenProvider.encode(user));
 
@@ -111,18 +115,22 @@ public class AuthController
         User user = this.userRepository.findByUsername(username).orElseThrow(() -> new InvalidUserCredentialException());
         if(!BCrypt.checkpw(password, user.getPassword())) throw new InvalidUserCredentialException();
 
+        if (user.getIsLoggedIn()) return ResponseEntity.status(HttpStatus.CONFLICT).body(Collections.singletonMap("district_name", user.getDistrict().getName()));
+
         user.setIsLoggedIn(true);
         user.setLastLoggedIn(new Timestamp(System.currentTimeMillis()));
         user.setRefreshToken(RandomStringUtils.randomAlphanumeric(20));
         this.userRepository.save(user);
 
         UserDTO dto = this.convertToDto(user);
-        if (this.contactRepository.countByUserIdAndContactDate(user.getId(), new Date(System.currentTimeMillis())) > 0) {
+        Long contacts = this.contactRepository.countByUserIdAndContactDate(user.getId(), new Date(System.currentTimeMillis()));
+        if (contacts > 0) {
             dto.setIsNoted(true);
         } else {
             dto.setIsNoted(false);
         }
         dto.setToken(this.tokenProvider.encode(user));
+        dto.setContacts(contacts);
 
         return ResponseEntity.status(HttpStatus.OK).body(dto);
     }
@@ -139,6 +147,28 @@ public class AuthController
         this.userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+    }
+
+    @CrossOrigin(value = "*")
+    @RequestMapping(value = "refresh_token", method = RequestMethod.POST)
+    public ResponseEntity<?> refreshToken(
+        @RequestHeader("Authorization") String token,
+        @Valid @RequestBody RefreshTokenRequest request) throws Exception
+    {
+        UserDTO dto = this.tokenProvider.verifyAndDecode(token);
+        User user = this.userRepository.findById(dto.getId()).orElseThrow(() -> new InvalidAuthorizationTokenException());
+
+        if (user.getRefreshToken().compareTo(request.getRefreshToken()) != 0) throw new InvalidAuthorizationTokenException();
+
+        user.setRefreshToken(RandomStringUtils.randomAlphanumeric(20));
+        this.userRepository.save(user);
+
+        String newToken = this.tokenProvider.encode(user);
+        RefreshTokenResponse response = new RefreshTokenResponse();
+        response.setToken(newToken);
+        response.setRefreshToken(user.getRefreshToken());
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     private Province createProvince(Integer id, String name)
