@@ -2,6 +2,7 @@ package com.benica.catatcovid.dto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -13,9 +14,11 @@ public class RegisterRequest
 {
     @JsonProperty("username") @NotBlank
     @Size(min = 5, max = 25)
+    @Pattern(regexp = "^[A-Za-z0-9]+$")
     @Getter @Setter String username;
 
     @JsonProperty("password") @NotBlank
+    @Size(min = 8)
     @Getter @Setter String password;
 
     @JsonProperty("province_id") @NotNull

@@ -125,4 +125,15 @@ public class AccessTokenProvider
             else throw new InvalidAuthorizationTokenException();
         }
     }
+
+    public UserDTO decode(String authToken)
+    {
+        String jwtToken = authToken.replace("Bearer ", "");
+        DecodedJWT jwt = JWT.decode(jwtToken);
+        UserDTO payload = new UserDTO();
+        payload.setId(jwt.getClaim("user_id").asLong());
+        payload.setUsername(jwt.getClaim("user_name").asString());
+
+        return payload;
+    }
 }

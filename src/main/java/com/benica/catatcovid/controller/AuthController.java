@@ -155,7 +155,7 @@ public class AuthController
         @RequestHeader("Authorization") String token,
         @Valid @RequestBody RefreshTokenRequest request) throws Exception
     {
-        UserDTO dto = this.tokenProvider.verifyAndDecode(token);
+        UserDTO dto = this.tokenProvider.decode(token);
         User user = this.userRepository.findById(dto.getId()).orElseThrow(() -> new InvalidAuthorizationTokenException());
 
         if (user.getRefreshToken().compareTo(request.getRefreshToken()) != 0) throw new InvalidAuthorizationTokenException();
