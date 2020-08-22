@@ -4,6 +4,8 @@ import java.sql.Date;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ContactRepository extends JpaRepository<Contact, Long> {
+public interface ContactRepository extends JpaRepository<Contact, Long>
+{
     abstract Long countByUserIdAndContactDate(Long userId, Date contactDate);
+    abstract Long countByDistrictIdAndContactDate(Integer districtId, Date contactDate);
 }
