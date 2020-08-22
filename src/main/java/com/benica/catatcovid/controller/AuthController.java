@@ -139,7 +139,7 @@ public class AuthController
     @RequestMapping(value = "logout", method = RequestMethod.POST)
     public ResponseEntity<?> logout(@Valid @RequestHeader("Authorization") String token) throws Exception
     {
-        UserDTO dto = this.tokenProvider.verifyAndDecode(token);
+        UserDTO dto = this.tokenProvider.decode(token);
         User user = this.userRepository.findById(dto.getId()).orElseThrow(() -> new InvalidAuthorizationTokenException());
 
         user.setLastLoggedIn(new Timestamp(System.currentTimeMillis()));
